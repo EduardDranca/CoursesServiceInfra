@@ -1,16 +1,47 @@
 import * as cdk from 'aws-cdk-lib';
-import { Construct } from 'constructs';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
+import {Construct} from 'constructs';
+import {AttributeType, Table} from 'aws-cdk-lib/aws-dynamodb';
+import {AccountRootPrincipal, Effect, Policy, PolicyStatement, Role, ServicePrincipal} from 'aws-cdk-lib/aws-iam';
 
 export class FreeCoursesInfraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // The code that defines your stack goes here
+    const ddbTable = new Table(this, 'courses-table', {
+      tableName: 'courses-table',
+      partitionKey: {
+        name: 'id',
+        type: AttributeType.STRING
+      },
+      sortKey: {
+        name: 'sortKey',
+        type: AttributeType.STRING
+      },
+    });
+    ddbTable.addGlobalSecondaryIndex({
+      indexName: 'category-subcategory-index',
+      partitionKey: {
+        name: 'sortKey',
+        type: AttributeType.STRING
+      },
+      sortKey: {
+        name: 'csGsiSk',
+        type: AttributeType.STRING
+      }
+    });
 
-    // example resource
-    // const queue = new sqs.Queue(this, 'FreeCoursesInfraQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
-    // });
+    const freeCoursesServiceExecutionRole = new Role(this, 'service-execution-role', {
+      roleName: 'service-execution-role',
+      assumedBy: new ServicePrincipal('ecs.amazonaws.com')
+    });
+
+    const ddbReadRole = new Role(this, 'courses-table-role', {
+      roleName: 'courses-table-access-role',
+      assumedBy: freeCoursesServiceExecutionRole
+    });
+
+    ddbReadRole.grantAssumeRole(new AccountRootPrincipal);
+
+    ddbTable.grantReadWriteData(ddbReadRole);
   }
 }
