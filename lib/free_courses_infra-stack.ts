@@ -12,18 +12,6 @@ export class FreeCoursesInfraStack extends cdk.Stack {
 
     })
 
-    const ddbTable = new Table(this, 'courses-table', {
-      tableName: 'courses-table',
-      partitionKey: {
-        name: 'id',
-        type: AttributeType.STRING
-      },
-      sortKey: {
-        name: 'sortKey',
-        type: AttributeType.STRING
-      },
-    });
-
     ddbTable.addGlobalSecondaryIndex({
       indexName: 'category-subcategory-index',
       partitionKey: {
