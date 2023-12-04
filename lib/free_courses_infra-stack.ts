@@ -12,18 +12,6 @@ export class FreeCoursesInfraStack extends cdk.Stack {
 
     })
 
-    ddbTable.addGlobalSecondaryIndex({
-      indexName: 'category-subcategory-index',
-      partitionKey: {
-        name: 'sortKey',
-        type: AttributeType.STRING
-      },
-      sortKey: {
-        name: 'csGsiSk',
-        type: AttributeType.STRING
-      }
-    });
-
     const freeCoursesServiceExecutionRole = new Role(this, 'service-execution-role', {
       roleName: 'service-execution-role',
       assumedBy: new ServicePrincipal('ecs.amazonaws.com')
