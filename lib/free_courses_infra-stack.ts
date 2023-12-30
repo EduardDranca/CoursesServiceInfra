@@ -192,6 +192,13 @@ export class FreeCoursesInfraStack extends cdk.Stack {
     return taskDefinition;
   }
 
+  /**
+   * Creates the application load balancer for the service.
+   *
+   * @param vpc         the vpc for the service.
+   * @param targetGroup the target group for the service.
+   * @returns {ApplicationLoadBalancer}
+   */
   private createAlb(vpc: Vpc, targetGroup: ApplicationTargetGroup): ApplicationLoadBalancer {
     const applicationLoadBalancer = new ApplicationLoadBalancer(this, 'free-courses-alb', {
       vpc: vpc,
@@ -211,6 +218,11 @@ export class FreeCoursesInfraStack extends cdk.Stack {
     return applicationLoadBalancer;
   }
 
+  /**
+   * Creates the dynamodb table for the courses.
+   * @param ddbReadRole the role for reading from and writing to the dynamodb table.
+   * @returns {Table}
+   */
   private createDdbTable(ddbReadRole: Role): Table {
     const ddbTable = new Table(this, 'courses-table', {
       tableName: 'courses-table',
